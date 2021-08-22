@@ -1,6 +1,6 @@
 select row_number() over() order_status_id,*,
       cast(case when order_status_detail in ('successful') then 1 else 0 end as boolean) Is_Successful_Order,
-      'MissLUAE' Halo_Country
+      'Lazurde_KSA' Halo_Country
 from (
 select orderstatus,
 case orderstatus
@@ -15,6 +15,6 @@ when 'Refunded' then 'Refunded'
 else 'unsucessful'
 end  as order_status_detail
 from(
-select distinct status orderstatus from  `noted-computing-279322.halo_1_1_UAE.magento_transaction`
+select distinct status orderstatus from  `noted-computing-279322.halo_1_1_lazurdeksa.magento_transaction`
 )
 )

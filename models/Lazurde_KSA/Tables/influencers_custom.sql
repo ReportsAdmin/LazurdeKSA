@@ -20,19 +20,20 @@ from
 ((select c.date,c.code,d.spend_per_day spend
 from
 (select distinct date,lower(trim(code)) code,monthname,a.year,country_ksa_egypt
-from `noted-computing-279322.halo_1_1_UAE.Calendar` a
+from `noted-computing-279322.halo_1_1_lazurdeksa.Calendar` a
 cross join
-`noted-computing-279322.halo_1_1_UAE.magento_influencerscode` b) c
-left join `noted-computing-279322.halo_1_1_UAE.magento_influencerscode` d
+`noted-computing-279322.halo_1_1_lazurdeksa.magento_influencerscode` b) c
+left join `noted-computing-279322.halo_1_1_lazurdeksa.magento_influencerscode` d
 on c.code = lower(trim(d.code))
 and lower(c.monthname) = lower(substr(d.month_paid,1,3))
 and c.year = d.year
 where lower(c.country_ksa_egypt) = 'ksa') e
-left join `noted-computing-279322.halo_1_1_UAE.fOrders` f
+left join `noted-computing-279322.halo_1_1_lazurdeksa.fOrders` f
 on e.date = f.order_date
 and e.code = lower(f.coupon_code))
 
 group by 1,2) n
-where orders > 0 or spend > 0) x
-left join `noted-computing-279322.halo_1_1_UAE.fDailyAgg` y
+-- where orders > 0 or spend > 0
+) x
+left join `noted-computing-279322.halo_1_1_lazurdeksa.fDailyAgg` y
 on x.date = y.date))

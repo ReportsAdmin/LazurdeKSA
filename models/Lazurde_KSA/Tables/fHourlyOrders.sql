@@ -1,6 +1,6 @@
 select *,Round((PrevWeekOrders+Prev2WeekOrders+Prev3WeekOrders)/3) Prev_3Weeks_AVg_Orders,
         Round((PrevWeekRevenue+Prev2WeekRevenue+Prev3WeekRevenue)/3) Prev_3Weeks_AVg_Revenue,
-        'MissLUAE' Halo_Country
+        'Lazurde_KSA' Halo_Country
 from
 (
 
@@ -28,7 +28,7 @@ left join
 from
 (
 select order_id,order_date,order_datetime,sum(total_item_price) Revenue
-from `noted-computing-279322.halo_1_1_UAE.fOrders`
+from `noted-computing-279322.halo_1_1_lazurdeksa.fOrders`
 where Is_Successful_Order =true
 group by 1,2,3
 )

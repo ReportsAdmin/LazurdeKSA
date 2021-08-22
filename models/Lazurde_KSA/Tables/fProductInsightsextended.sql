@@ -1,74 +1,35 @@
-select *, from
-(select prodinsights.*,stock.inventory,stock.mrp,stock.selling_price from (
-(select prod.*,image.image from(
-(select distinct * from (
-select * , 'MissLUAE' Halo_Country
-from(
-select
--- c.startdate date_start,
--- c.D_ga_productSku product_id,
-a.order_date date_start,
-a.product_id,
-a.product_sku,
--- c.D_ga_productCategoryHierarchy as category_L2,
-a.category category_L2,
-a.sub_category as category_L1,
-a.product_title,
--- c.D_ga_productName product_title,
-cast(c.M_ga_productListViews as float64) impressions,
-cast(c.M_ga_productListClicks as float64) clicks,
-cast(c.M_ga_productDetailViews as float64) productdetail_views,
-cast(c.M_ga_productAddsToCart as float64) Addstocart,
-a.orders,
-a.units,
-a.revenue,
-a.category_id,
-a.Overall_revenue,
-a.Overall_units,
-a.Overall_orders
-from
-(select test.*,test2.category,test2.sub_category,test2.category_id from
-(select
- product_id,
- product_sku,
- product_title,
- store_id,
-order_date,
+
+select distinct prd.product_id, prd.sku as product_sku, prd.stock  as inventory, prd.category as category_L2,
+prd.sub_category as category_L1, prd.product_name as product_title, img.image, 'Lazurde_KSA' Halo_Country,
+prd.stock, ord.order_date as date_start, Overall_orders,	Overall_units, impressions, clicks, productdetail_views, Addstocart,
+Overall_revenue,	revenue,	units, orders, 
+stk.mrp, stk.selling_price
+from `noted-computing-279322.halo_1_1_lazurdeksa.fproducts` prd
+left join
+
+(select product_id, order_date,
 count(distinct order_id) Overall_orders,
 sum(product_quantity) Overall_units,
 sum(total_item_price) Overall_revenue,
 sum(case when order_status in ('successful') then total_item_price  end)  revenue,
 Sum(case when order_status in ('successful') then product_quantity end) units,
 count(distinct case when order_status in ('successful') then order_id end) orders
-from `noted-computing-279322.halo_1_1_UAE.fOrders`
-group by product_id,
-product_sku,
-product_title,
-order_date,
-store_id
-    )test
-    left join
-(select distinct product_id, category, sub_category, prod_name,category_id,
-  case when store_id = 0 then 4 else store_id end Cstore_id
- from `noted-computing-279322.halo_1_1_UAE.magento_missl_productscat`)test2
-on test.product_id = cast(test2.product_id as string)
--- and test.product_title = test2.prod_name
-and test.store_id = cast(test2.Cstore_id as STRING)
-)a
+from `noted-computing-279322.halo_1_1_lazurdeksa.fOrders`
+group by product_id, order_date) ord
+on prd.product_id = cast(ord.product_id as int64)
+
 left join
-`noted-computing-279322.halo_1_1_UAE.fGABaseSKU` c
-on cast(c.D_ga_productSku as string) = cast(a.Product_id as string)
---and a.category = c.D_ga_productCategoryHierarchy
---and a.product_title = c.D_ga_productName
-and PARSE_DATE('%Y%m%d', D_ga_date)= a.order_date
-)
-where product_id IS NOT NULL
-) where date_start>='2018-01-1'
-)prod
-left join
-(select distinct Product_id, Image from `noted-computing-279322.halo_1_1_UAE.fProductImage`)image
-on prod.product_id = image.Product_id)
-)prodinsights
-left join
-(select * from `noted-computing-279322.halo_1_1_UAE.fProductStock`)stock
-on prodinsights.product_id = stock.productid) )
+(select distinct Product_id, Image from `noted-computing-279322.halo_1_1_lazurdeksa.fProductImage`) img
+on prd.product_id = cast(img.product_id as int64)
+
+left join (select D_ga_productSku,D_ga_date, sum(cast(M_ga_productListViews as float64)) impressions,
+sum(cast(M_ga_productListClicks as float64)) clicks,
+sum(cast(M_ga_productDetailViews as float64)) productdetail_views,
+sum(cast(M_ga_productAddsToCart as float64)) Addstocart
+from `noted-computing-279322.halo_1_1_lazurdeksa.fGABaseSKU`
+group by 1,2) sku
+on cast(prd.product_id as string) = cast(sku.D_ga_productSku as string)
+and PARSE_DATE('%Y%m%d', sku.D_ga_date)= ord.order_date
+
+left join `noted-computing-279322.halo_1_1_lazurdeksa.fProductStock` stk
+on prd.product_id = cast(stk.productid as int64)
