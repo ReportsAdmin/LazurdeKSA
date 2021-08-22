@@ -1,5 +1,4 @@
-Select tp.* except(city), city.mapped_city__st as city from
-(select ord.*, fulfil.time_to_fulfill, deliv.Delivered_quantity, deliv.Delivered_Orders, 'MissLUAE' Halo_Country from
+select ord.*, fulfil.time_to_fulfill, deliv.Delivered_quantity, deliv.Delivered_Orders, 'Lazurde_KSA' Halo_Country from
 (
 --- Overall,SUccessful,cancelled orders
 (Select
@@ -12,7 +11,7 @@ ifnull(Count (distinct(case when Order_status = 'successful' then order_id else 
 ifnull(sum(case when Order_status = 'successful' then product_quantity else null end ),0) Successful_qty,
 ifnull(Count (distinct(case when Order_status = 'canceled' then order_id else null end )),0) Cancelled_Orders,
 ifnull(sum(case when Order_status = 'canceled' then product_quantity else null end ),0) Cancelled_quantity
-from `noted-computing-279322.halo_1_1_UAE.fOrders`
+from `noted-computing-279322.halo_1_1_lazurdeksa.fOrders`
 group by 1,2) ord
 
 
@@ -26,8 +25,8 @@ left join
  date_diff(delivered_date,order_date,day) time_to_fulfill , city, increment_id
  from (
  Select (case when trans.status like '%delivered%' then cast(trans.updated_at as date) end) delivered_date, ( case when  Order_status = 'successful' then ord.order_date end) order_date, trans.increment_id,ifnull(trim(lower(ord.city)),'unknown') as city
- from `noted-computing-279322.halo_1_1_UAE.magento_transactionnew` trans
- left join  `noted-computing-279322.halo_1_1_UAE.fOrders` ord
+ from `noted-computing-279322.halo_1_1_lazurdeksa.magento_transactionnew` trans
+ left join  `noted-computing-279322.halo_1_1_lazurdeksa.fOrders` ord
  on trans.increment_id = ord.increment_id
  ) group by time_to_fulfill,2,3) fulfil
 
@@ -39,16 +38,15 @@ left join
  ---- delivered orders
  ( select  ifnull(trim(lower(address.city)),'unknown') as city, ord.increment_id,
 sum (total_qty_ordered) as Delivered_quantity,ifnull(count(distinct ord.entity_id),0) Delivered_Orders
-From `noted-computing-279322.halo_1_1_UAE.magento_transactionnew` ord
-left join `noted-computing-279322.halo_1_1_UAE.magento_address` address
+From `noted-computing-279322.halo_1_1_lazurdeksa.magento_transactionnew` ord
+left join `noted-computing-279322.halo_1_1_lazurdeksa.magento_address` address
  on ord.entity_id=address.parent_id
 Where status like '%delivered%'
 group by 1,2
 
+
+
  ) deliv
 
  on ord.city = deliv.city
- and ord.increment_id = deliv.increment_id)) tp
-left join
-(select * from `noted-computing-279322.city_corrected_name.City_Name`) city
-on tp.city = city.current_city__st
+ and ord.increment_id = deliv.increment_id)

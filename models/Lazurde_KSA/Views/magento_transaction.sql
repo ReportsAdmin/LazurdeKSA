@@ -11,8 +11,10 @@ when lower(ta.status) like '%return%' then 'Returned' else 'unsucessful' end sta
 from
 (SELECT * except(row_number)
 FROM (SELECT *,ROW_NUMBER() OVER (PARTITION BY entity_id order by updated_at desc ) row_number
-FROM `noted-computing-279322.MissL1.magento2_missl_live_sales_order`)
-WHERE row_number = 1 and store_id not in (0,4,21,22,23))ta
+FROM `noted-computing-279322.MissL1.Lazurde_lazurde_live_sales_order`)
+WHERE row_number = 1
+and store_id in (1,2)
+)ta
 
 left join
 
@@ -21,14 +23,15 @@ left join
 (select * from
 (SELECT * except(row_number)
 FROM (SELECT *,ROW_NUMBER() OVER (PARTITION BY entity_id order by updated_at desc ) row_number
-FROM `noted-computing-279322.MissL1.magento2_missl_live_sales_order`)
+FROM `noted-computing-279322.MissL1.Lazurde_lazurde_live_sales_order`)
 WHERE row_number = 1)
 where status in ('complete','processing','payfort_fort_new','processing_confirmed','processing_shipped',
 'closed','pending') or status like '%delivered%')
-where store_id not in (0,4,21,22,23))a
+where store_id in (1,2)
+)a
 left join
 (select distinct entity_id as entityid,increment_id as incrementid,customer_contacted,payfort_paid from
- `noted-computing-279322.MissL1.magento2_missl_live_sales_order_grid`) b
+ `noted-computing-279322.MissL1.Lazurde_lazurde_live_sales_order_grid`) b
 ON a.increment_id = b.incrementid
 where lower(customer_contacted) = 'yes' or lower(payfort_paid) = 'yes')tb
 on ta.entity_id= tb.entity_id)
